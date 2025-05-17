@@ -1,11 +1,41 @@
 import { Input, Button, Tooltip, ConfigProvider, Alert } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { customTheme } from "../themes/themeAntD";
 import { createToken, Lexer, CstParser, type IToken } from "chevrotain";
 import "./TheHighlightedTextarea.sass";
+import hljs from "highlight.js/lib/core";
+import "highlight.js/styles/vs2015.css";
 
 const { TextArea } = Input;
+
+hljs.registerLanguage("logic", (hljs) => ({
+  keywords: {
+    operator: "AND OR NOT",
+  },
+  contains: [
+    {
+      className: "operator",
+      begin: /\b(AND|OR|NOT)\b/,
+    },
+    {
+      className: "key",
+      begin: /\b[A-Z]+=/,
+    },
+    {
+      className: "string",
+      begin: /"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)'/,
+    },
+    {
+      className: "word",
+      begin: /[a-zA-Z0-9_*-]+/,
+    },
+    {
+      className: "paren",
+      begin: /[()]/,
+    },
+  ],
+}));
 
 // Тип логического блока
 type BlockType = "TYPE1" | "TYPE2";
@@ -276,11 +306,58 @@ function cstToAst(cst: CstNode): ASTNode {
   return visit(cst);
 }
 
+//Подсветка
+function highlightText(tokens: IToken[], whitespaceTokens: IToken[]): string {
+  let highlighted = "";
+  const allTokens = [...tokens, ...whitespaceTokens].sort(
+    (a, b) => a.startOffset - b.startOffset
+  );
+
+  for (const token of allTokens) {
+    let className = "";
+    switch (token.tokenType.name) {
+      case "Not":
+      case "And":
+      case "Or":
+        className = "operator";
+        break;
+      case "Key":
+        className = "key";
+        break;
+      case "Quoted":
+        className = "string";
+        break;
+      case "Word":
+        className = "word";
+        break;
+      case "LParen":
+      case "RParen":
+        className = "paren";
+        break;
+      case "Whitespace":
+        className = "";
+        break;
+    }
+
+    const escapedValue = token.image
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    highlighted += className
+      ? `<span class="hljs-${className}">${escapedValue}</span>`
+      : escapedValue;
+  }
+
+  return highlighted;
+}
+
 const parser = new LogicParser();
 
 export default function TheHighlightedTextarea() {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [highlighted, setHighlighted] = useState("");
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -309,14 +386,43 @@ export default function TheHighlightedTextarea() {
       // Преобразование в AST
       const ast = cstToAst(cst);
       console.log("AST:", JSON.stringify(ast, null, 2));
+      const highlightedText = highlightText(
+        lexResult.tokens,
+        lexResult.groups.whitespace || []
+      );
+      setHighlighted(highlightedText);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
         console.error("Parsing error:", err.message);
+        setHighlighted(
+          value
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+        );
       } else {
         setError("Произошла неизвестная ошибка");
         console.error("Parsing error (unknown):", err);
+        setHighlighted(
+          value
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+        );
       }
+    }
+  };
+
+  // Синхронизация прокрутки
+  const handleScroll = () => {
+    const textArea = textAreaRef.current;
+    const highlightLayer = document.querySelector(
+      ".highlighted-textarea-container__highlight-layer"
+    );
+    if (textArea && highlightLayer) {
+      highlightLayer.scrollTop = textArea.scrollTop;
+      highlightLayer.scrollLeft = textArea.scrollLeft;
     }
   };
 
@@ -324,14 +430,29 @@ export default function TheHighlightedTextarea() {
     <ConfigProvider theme={customTheme}>
       <div className="highlighted-textarea-container">
         <div className="highlighted-textarea-container__search-container">
-          <TextArea
-            className="highlighted-textarea-container__input"
-            placeholder="Введите логическое выражение"
-            allowClear
-            onChange={handleChange}
-            value={input}
-            spellCheck={false}
-          />
+          <div style={{ position: "relative", width: "100%" }}>
+            <TextArea
+              className="highlighted-textarea-container__input"
+              ref={textAreaRef}
+              placeholder="Введите логическое выражение"
+              allowClear
+              onChange={handleChange}
+              onScroll={handleScroll}
+              value={input}
+              spellCheck={false}
+            />
+            <div
+              className="highlighted-textarea-container__highlight-layer"
+              dangerouslySetInnerHTML={{
+                __html:
+                  highlighted ||
+                  input
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;"),
+              }}
+            />
+          </div>
           <Tooltip title="search">
             <Button ghost size="large" icon={<SearchOutlined />} />
           </Tooltip>

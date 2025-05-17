@@ -1,6 +1,6 @@
 export const customTheme = {
     token: {
-
+      fontFamily: "Special Gothic"
       },
       components: {
         Button: {
@@ -11,6 +11,8 @@ export const customTheme = {
           defaultBorderColor: "rgba(163, 161, 173, 0.7)",
         },
         Input: {
+          paddingBlock: 8,
+          paddingInline: 8,
           colorBgContainer: "transparent",
           colorBorder: "rgba(163, 161, 173, 0.7)",
           hoverBorderColor: "rgba(198, 196, 209, 0.7)",

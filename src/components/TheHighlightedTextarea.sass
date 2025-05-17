@@ -8,20 +8,50 @@
     border: 1px solid #373759
     border-radius: 10px
     background: none
-    
-.highlighted-textarea-container__input
-    padding: 0
-    margin: 0
-    font-size: 1rem
-    color: (#b8b4c7)
+    position: relative
+    &__search-container
+      display: flex
+      flex-direction: row
+      gap: 3rem
+      align-items: center
+      width: 100%
+      position: relative
+    &__input
+      background: transparent !important
+      color: transparent !important
+      caret-color: #afabab
+      position: relative
+      z-index: 2
+      width: 100%
+      padding: 9px
+      margin: 0
+      font-family: "Special Gothic"
+      font-size: 1rem
+    &__highlight-layer
+      position: absolute
+      top: 0
+      left: 0
+      right: 0
+      bottom: 0
+      margin: 0
+      padding: 8px
+      font-family: "Special Gothic"
+      font-size: 1rem
+      line-height: 1.5714285714285714
+      color: #b8b4c7
+      z-index: 1
+    &__err
+      .ant-alert-message
+        color: rgba(233, 81, 81, 0.92)
 
-.highlighted-textarea-container__search-container
-  display: flex
-  flex-direction: row
-  gap: 3rem
-  align-items: center
-  width: 100%
-    
-.highlighted-textarea-container__err
-    .ant-alert-message
-      color: rgba(233, 81, 81, 0.92)
+.highlighted-textarea-container__highlight-layer
+  .hljs-operator
+    color: #14d0dd  // Соответствует colorPrimary
+  .hljs-key
+    color: #f1f500  // Соответствует colorPrimaryHover
+  .hljs-string
+    color: #6144c9  // Ваш цвет текста
+  .hljs-word
+    color: #35d330
+  .hljs-paren
+    color: #c42b2b  // Соответствует colorTextPlaceholder
