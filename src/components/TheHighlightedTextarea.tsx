@@ -338,6 +338,7 @@ export default function TheHighlightedTextarea() {
         </div>
         {error && (
           <Alert
+            className="highlighted-textarea-container__err"
             message="Ошибка парсинга"
             description={error}
             type="error"

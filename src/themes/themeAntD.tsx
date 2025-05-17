@@ -21,5 +21,12 @@ export const customTheme = {
           colorBgSpotlight: "#333",
           colorTextLightSolid: "#fff",
         },
+        Alert: {
+          withDescriptionPadding: 16,
+          colorError: "rgba(182, 75, 75, 0.92)",
+          colorErrorBg: "rgba(114, 111, 126, 0.36)",
+          colorErrorBorder: "rgba(199, 196, 212, 0.77)",
+          colorText: "rgba(199, 196, 212, 0.77)",
+        },
     },
   };
