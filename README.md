@@ -1,54 +1,41 @@
-# React + TypeScript + Vite
+# Highlighted Textares
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Готовое решение можно посмотреть по [ссылке](http://bars.vidrochka.xyz:7209/)
 
-Currently, two official plugins are available:
+Основной стек: Vite, React, TS, AntD, SASS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Для подсветки текста использовалась библиотека highlight.js.
 
-## Expanding the ESLint configuration
+Для парсинга - библиотека chevrotain.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Описание проекта
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+Textarea - поиск инфорсмации с помощью логических выражений по типу {логический префикс} [логический блок] {логическая связка} {логический префикс} [логический блок]...
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+В качестве [логического блока] выступает лексическое выражение (слово/фраза)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+В качестве {логической связки} выступают ключевые слова OR, AND.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+В качестве {логического префикса} выступает ключевое слово NOT.
+
+Логические выражения могут быть двух типов:
+
+- отдельные слова или группы слов (фразы), объединённые через кавычки;
+
+- связка ключа и слова или группы слов (фразы), объединённые через кавычки.
+
+### Правила формирования логического выражения:
+
+- кол-во пробелов или табуляций между блоками значения не имеет и ни на что не влияет, но должно сохраняться;
+- {логический префикс} может как присутствовать перед [логическим блоком], так и отсутствовать;
+- между [логическими блоками] обязана быть {логическая связка};
+- в выражении может быть только один [логический блок], тогда {логическая связка будет отсутствовать}, а {логический префикс} может как отсутствовать, так и присутстсовать;
+- все [логические блоки] в выражении всегда только одно типа (или Типа 1 или Типа 2, остальные варианты считаются ошибочными);
+- логические блоки могут объединяться через круглые скобки;
+- приоритеты логических связок такие же как и в булевой математике;
+- выражения могут быть в виде отдельного слова или, в случае нескольких слов, экранированы одинарными или двойными кавычками;
+- в выражении могут использоваться как одинарные, так и двойные кавычки, однако:
+
+1) одно выражение должно начинаться и заканчиваться кавычками одного типа;
+2) внутри выражения могут использоваться кавычки другого типа как обычные символы;
+3) внутри выражения могут использоваться кавычки того же типа, которыми обозначается выражение, но тогда кавычки внутри выражения должны экранироваться через \.
